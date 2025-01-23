@@ -1,8 +1,20 @@
+import { StatusCodes } from 'http-status-codes';
+
 import { TUser } from './user.interface';
 import { UserModel } from './user.model';
+import throwAppError from '../../utils/throwAppError';
 
 const registerUserIntoDB = async (payload: TUser) => {
   const result = await UserModel.create(payload);
+  console.log('ekhane haha', result);
+  if (!result) {
+    //throwAppError is an utility function to reduce the boilerplate
+    throwAppError(
+      'unknown',
+      'Internal server error. Could not register the user.',
+      StatusCodes.INTERNAL_SERVER_ERROR,
+    );
+  }
   return result;
 };
 
