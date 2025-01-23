@@ -1,5 +1,7 @@
 import { model, Schema } from 'mongoose';
 import { TUser } from './user.interface';
+import bcrypt from 'bcrypt';
+import config from '../../config';
 
 const UserSchema = new Schema<TUser>(
   {
@@ -13,5 +15,18 @@ const UserSchema = new Schema<TUser>(
     timestamps: true,
   },
 );
+
+//creating or using mongoose middleware like pre and post
+UserSchema.pre('save', async function () {
+  this.password = await bcrypt.hash(
+    this.password,
+    Number(config.bcrypt_salt_round),
+  );
+});
+
+// hiding the password from the response document to keep the privacy.
+UserSchema.post('save', function (doc) {
+  doc.password = '';
+});
 
 export const UserModel = model<TUser>('User', UserSchema);
