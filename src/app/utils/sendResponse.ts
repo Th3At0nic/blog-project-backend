@@ -9,6 +9,7 @@ const sendResponse = <T>(
   res.status(statusCode).json({
     success: true,
     message: message,
+    statusCode,
     data: result,
   });
 };
