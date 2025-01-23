@@ -16,7 +16,7 @@ export const globalErrorHandler: ErrorRequestHandler = (
   next,
 ) => {
   let statusCode = err.statusCode || 500;
-  const success = err.success;
+  const success = err.success || false;
   let error: TError = err.error || [
     {
       path: '',
@@ -51,7 +51,8 @@ export const globalErrorHandler: ErrorRequestHandler = (
   res.status(statusCode).json({
     success: success,
     message: message,
-    errorSource: error,
+    statusCode,
+    error: error,
     ...(config.node_env === 'development' ? { stack: err.stack } : null),
   });
 };
