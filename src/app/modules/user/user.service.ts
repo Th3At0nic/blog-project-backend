@@ -6,7 +6,7 @@ import throwAppError from '../../utils/throwAppError';
 
 const registerUserIntoDB = async (payload: TUser) => {
   const result = await UserModel.create(payload);
-  console.log('ekhane haha', result);
+
   if (!result) {
     //throwAppError is an utility function to reduce the boilerplate
     throwAppError(
@@ -15,7 +15,10 @@ const registerUserIntoDB = async (payload: TUser) => {
       StatusCodes.INTERNAL_SERVER_ERROR,
     );
   }
-  return result;
+
+  const { name, email, _id } = result;
+
+  return { _id, name, email };
 };
 
 export const UserServices = {
