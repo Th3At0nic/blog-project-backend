@@ -1,5 +1,5 @@
 import { model, Schema } from 'mongoose';
-import { TUser } from './user.interface';
+import { IUser, TUser } from './user.interface';
 import bcrypt from 'bcrypt';
 import config from '../../config';
 
@@ -29,4 +29,18 @@ UserSchema.post('save', function (doc) {
   doc.password = '';
 });
 
-export const UserModel = model<TUser>('User', UserSchema);
+//finding for existing user in the db so prevent duplicate creation
+UserSchema.statics.isUserExists = async function (email: string) {
+  const existingUser = await UserModel.findOne({ email });
+  return existingUser;
+};
+
+UserSchema.statics.isPasswordCorrect = async function (
+  plainTextPassword: string,
+  hashPassword: string,
+) {
+  const authPassword = await bcrypt.compare(plainTextPassword, hashPassword);
+  return authPassword;
+};
+
+export const UserModel = model<TUser, IUser>('User', UserSchema);
