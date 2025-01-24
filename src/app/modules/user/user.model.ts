@@ -7,7 +7,7 @@ const UserSchema = new Schema<TUser>(
   {
     name: { type: String, required: true, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true },
-    password: { type: String, required: true },
+    password: { type: String, required: true, select: 0 },
     role: { type: String, enum: ['admin', 'user'], default: 'user' },
     isBlocked: { type: Boolean, default: false },
   },
@@ -31,7 +31,7 @@ UserSchema.post('save', function (doc) {
 
 //finding for existing user in the db so prevent duplicate creation
 UserSchema.statics.isUserExists = async function (email: string) {
-  const existingUser = await UserModel.findOne({ email });
+  const existingUser = await UserModel.findOne({ email }).select('+password');
   return existingUser;
 };
 

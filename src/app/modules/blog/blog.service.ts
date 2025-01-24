@@ -5,6 +5,7 @@ import { BlogModel } from './blog.model';
 import { JwtPayload } from 'jsonwebtoken';
 import { UserModel } from '../user/user.model';
 import mongoose from 'mongoose';
+import { QueryBuilder } from '../../builder/QueryBuilder';
 
 const createBlogIntoDB = async (
   payload: TBlog,
@@ -16,7 +17,7 @@ const createBlogIntoDB = async (
 
   payload.author = authorInfo?._id as mongoose.Types.ObjectId;
 
-  const result = await BlogModel.create(payload);
+  const result = (await BlogModel.create(payload)).populate('author');
   if (!result) {
     //throwAppError is an utility function to reduce the boilerplate
     throwAppError(
@@ -25,10 +26,7 @@ const createBlogIntoDB = async (
       StatusCodes.INTERNAL_SERVER_ERROR,
     );
   }
-  const populatedResult = await BlogModel.findById(result._id).populate(
-    'author',
-  );
-  return populatedResult;
+  return result;
 };
 
 const updateBlogIntoDB = async (
@@ -71,7 +69,7 @@ const updateBlogIntoDB = async (
   const result = await BlogModel.findByIdAndUpdate(blogId, payload, {
     new: true,
     runValidators: true,
-  });
+  }).populate('author');
 
   if (!result) {
     //throwAppError is an utility function to reduce the boilerplate
@@ -82,10 +80,7 @@ const updateBlogIntoDB = async (
     );
   }
 
-  const populatedResult = await BlogModel.findById(result?._id).populate(
-    'author',
-  );
-  return populatedResult;
+  return result;
 };
 
 const deleteBlogFromDB = async (
@@ -120,18 +115,18 @@ const deleteBlogFromDB = async (
   ) {
     throwAppError(
       'authorization.user',
-      'You are not authorized to update this blog.',
+      'You are not authorized to delete this blog.',
       StatusCodes.FORBIDDEN, // Use 403 for unauthorized access to a valid resource
     );
   }
 
-  const result = await BlogModel.findByIdAndDelete(blogId);
+  const result = await BlogModel.findByIdAndDelete(blogId).populate('author');
 
   if (!result) {
     //throwAppError is an utility function to reduce the boilerplate
     throwAppError(
       'unknown',
-      'Internal server error. Could not post the blog.',
+      'Internal server error. Could not delete the blog.',
       StatusCodes.INTERNAL_SERVER_ERROR,
     );
   }
@@ -139,8 +134,31 @@ const deleteBlogFromDB = async (
   return result;
 };
 
+const getAllBlogsFromDB = async (query: Record<string, unknown>) => {
+  const searchableFields = ['title', 'content'];
+
+  const blogQuery = new QueryBuilder(query, BlogModel.find().populate('author'))
+    .search(searchableFields)
+    .filter()
+    .sortBy()
+    .paginate()
+    .fields();
+
+  const result = await blogQuery.modelQuery;
+  if (!result.length) {
+    //throwAppError is an utility function to reduce the boilerplate
+    throwAppError(
+      'blogs',
+      'No blogs found in the system',
+      StatusCodes.NOT_FOUND,
+    );
+  }
+  return result;
+};
+
 export const BlogServices = {
   createBlogIntoDB,
   updateBlogIntoDB,
   deleteBlogFromDB,
+  getAllBlogsFromDB,
 };
