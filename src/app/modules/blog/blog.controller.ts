@@ -13,7 +13,7 @@ const createBlog = catchAsync(async (req, res, next) => {
     blogData,
     userData as JwtPayload,
   );
-  const message = 'Successfully created the blog';
+  const message = 'Created the blog successfully';
   sendResponse(res, StatusCodes.CREATED, message, result);
 });
 
@@ -26,11 +26,23 @@ const updateBlog = catchAsync(async (req, res, next) => {
     id,
     blogData,
   );
-  const message = 'Successfully updated the blog';
+  const message = 'Updated the blog successfully';
   sendResponse(res, StatusCodes.OK, message, result);
+});
+
+const deleteBlog = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+  const decodedTokenData = req.user;
+  const result = await BlogServices.deleteBlogFromDB(
+    decodedTokenData as JwtPayload,
+    id,
+  );
+  const message = 'Deleted the blog successfully';
+  sendResponse(res, StatusCodes.OK, message, result ? null : result);
 });
 
 export const BlogControllers = {
   createBlog,
   updateBlog,
+  deleteBlog,
 };
