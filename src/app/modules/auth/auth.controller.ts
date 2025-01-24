@@ -1,6 +1,5 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { JwtPayload } from 'jsonwebtoken';
 import catchAsync from '../../utils/catchAsync';
 import { LoginUserServices } from './auth.service';
 import sendResponse from '../../utils/sendResponse';
@@ -21,18 +20,6 @@ const loginUser = catchAsync(async (req, res, next) => {
   sendResponse(res, StatusCodes.OK, message, { accessToken });
 });
 
-// const createNewAccessTokenByRefreshToken = catchAsync(
-//   async (req, res, next) => {
-//     const { refreshToken } = req.cookies;
-
-//     const result =
-//       await LoginUserServices.createNewAccessTokenByRefreshToken(refreshToken);
-//     const message = 'Access Token retrieved successfully';
-//     sendResponse(res, 200, true, message, result);
-//   },
-// );
-
 export const LoginUserControllers = {
   loginUser,
-  // createNewAccessTokenByRefreshToken,
 };
