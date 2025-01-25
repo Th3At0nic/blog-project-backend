@@ -1,4 +1,3 @@
-````markdown
 # Blogging Platform Backend
 
 A secure, scalable backend for a blogging platform where users can create, update, and manage their blogs. The platform features robust authentication, role-based access control, and efficient query functionalities like search, sort, and filtering.
@@ -46,11 +45,12 @@ A secure, scalable backend for a blogging platform where users can create, updat
 Follow these steps to set up the project locally:
 
 1. **Clone the Repository**
+
    ```bash
    git clone <repository-url>
    cd blog-project
+
    ```
-````
 
 2. **Install Dependencies**
 
@@ -132,7 +132,3 @@ For authorization-protected routes, include a valid **Bearer Token** in the `Aut
 
 For any issues or suggestions, feel free to contact the project owner.  
 Happy coding! 🚀
-
-```
-
-```
