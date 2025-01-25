@@ -1,4 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Query } from 'mongoose';
+import throwAppError from '../utils/throwAppError';
+import { StatusCodes } from 'http-status-codes';
 
 export class QueryBuilder<T> {
   public modelQuery: Query<T[], T>;
@@ -22,17 +25,25 @@ export class QueryBuilder<T> {
     return this;
   }
 
+  //this filter will work dynamically. i can expand it if needed. it will now work for author field,
+  //from client it will come as api/blogs?filter=value
   filter() {
-    const queryObject = { ...this.query };
-    const excludeFieldForFilter = [
-      'search',
-      'sortBy',
-      'sortOrder',
-      'limit',
-      'page',
-      'fields',
-    ];
-    excludeFieldForFilter.forEach((elem) => delete queryObject[elem]);
+    const queryObject: any = {};
+    const filterValue = this.query.filter;
+
+    if (filterValue) {
+      // Check if the filterValue matches an ObjectId (assumes author field is an ObjectId)
+      if (/^[0-9a-fA-F]{24}$/.test(filterValue as string)) {
+        // Assign filterValue to the `author` field in the queryObject
+        queryObject.author = filterValue;
+      } else {
+        throwAppError(
+          'query.filter',
+          'Invalid filter value. The filter value must be a valid ObjectId for the author.',
+          StatusCodes.BAD_REQUEST,
+        );
+      }
+    }
 
     this.modelQuery = this.modelQuery.find(queryObject);
     return this;
